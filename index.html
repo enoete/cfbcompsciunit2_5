@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design Diagrams — CS Unit 2</title>
+
+<!-- ===== lesson manifest: read by the hub's sync script ===== -->
+<meta property="og:title" content="System Design Diagrams">
+<meta property="og:description" content="Draw the system before you build it. A real drag-and-build canvas for Data Flow Diagrams and Entity-Relationship Diagrams that checks your work structurally — plus class diagrams, use case diagrams, structure charts, HIPO charts, CASE tools and standard interfaces.">
+<meta property="og:site_name" content="CS Unit 2 · CFBC">
+<meta name="description" content="Module 2, Lesson 2 — system design diagrams. Build real Data Flow Diagrams and Entity-Relationship Diagrams on an interactive canvas with instant structural self-checking, plus condensed interactive coverage of class diagrams, use case diagrams, structure charts, HIPO charts, CASE tools and standard interfaces.">
+<meta name="theme-color"        content="#6D28D9">
+<meta name="lesson:duration"    content="140 min">
+<meta name="lesson:difficulty" content="Core">
+<meta name="lesson:objectives" content="8">
+<meta name="lesson:questions"  content="26">
+<meta name="lesson:sections"   content="6">
+<meta name="lesson:topics"     content="Data Flow Diagrams,Entity-Relationship Diagrams,Cardinality,Class diagrams,Use case diagrams,Structure charts,HIPO charts,CASE tools,Standard interfaces">
+<meta name="lesson:activities" content="Diagram-family matching,DFD canvas builder,Illegal DFD spotting,ERD canvas builder,Diagram flashcards,Unit test">
+<meta name="lesson:updated"    content="2026-10-21">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1EEF7; --card:#FFFFFF; --grid:#DFD8EF;
+  --ink:#201433; --ink2:#4B3D63; --ink3:#73648A;
+  --hot:#6D28D9;   --hot-s:#EDE5FB;
+  --warn:#B0531F;  --warn-s:#FBE6D6;
+  --good:#0F7A5A;  --good-s:#DDF0E9;
+  --bad:#BC3A2C;   --bad-s:#FAE3E0;
+  --dfd:#0E6E8C;   --dfd-s:#DCF0F5;
+  --erd:#B0286B;   --erd-s:#FBE3EE;
+  --r:4px;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --ui:"Space Grotesk",system-ui,-apple-system,sans-serif;
+  --serif:"Source Serif 4",Georgia,serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.62;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;-webkit-text-size-adjust:100%}
+h1,h2,h3,h4,h5,.ui{font-family:var(--ui)}
+code,pre,.mono{font-family:var(--mono)}
+p{margin:0 0 1em}
+:focus-visible{outline:3px solid var(--hot);outline-offset:2px;border-radius:3px}
+button{font:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+main{padding-bottom:110px}
+
+header.topbar{position:sticky;top:0;z-index:60;background:rgba(241,238,247,.95);backdrop-filter:blur(6px);border-bottom:2px solid var(--ink)}
+.bar-in{max-width:1040px;margin:0 auto;padding:9px 20px;display:flex;align-items:center;gap:14px}
+.brand{font-family:var(--ui);font-weight:700;font-size:15px;white-space:nowrap;flex:none}
+.brand .sub{color:var(--hot)}
+nav.jump{display:flex;flex-wrap:wrap;gap:3px;overflow-x:auto;flex:1;min-width:0}
+nav.jump a{font-family:var(--ui);font-size:12.5px;font-weight:500;text-decoration:none;color:var(--ink2);padding:6px 10px;border-radius:var(--r);white-space:nowrap}
+nav.jump a:hover{background:var(--hot-s);color:var(--hot)}
+nav.jump a.home{color:var(--hot);font-weight:700}
+.prog{height:3px;background:var(--grid)}
+.prog i{display:block;height:100%;background:var(--hot);width:0;transition:width .1s linear}
+
+.hero{padding:54px 0 36px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--ui);font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--hot)}
+.hero h1{font-size:clamp(28px,5.4vw,50px);line-height:1.06;margin:12px 0 0;font-weight:700;letter-spacing:-.02em;max-width:22ch}
+.hero p.lede{font-size:clamp(17px,2.1vw,20px);max-width:64ch;margin:18px 0 0;color:var(--ink2)}
+
+section{padding:50px 0 6px}
+section>.wrap>h2{font-size:clamp(1.5rem,3.6vw,2.05rem);margin:0 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;font-family:var(--ui);font-weight:700;font-size:.72rem;letter-spacing:.03em;color:#fff;padding:4px 11px;border-radius:999px}
+.sub{color:var(--ink2);max-width:68ch;margin-bottom:24px}
+.card{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:20px 22px;margin-bottom:16px}
+.card h3{margin:0 0 8px;font-size:1.08rem}
+.analogy{border:2px solid var(--hot);background:var(--hot-s);border-radius:var(--r);padding:16px 20px;margin:0 0 22px}
+.analogy h4{margin:0 0 6px;font-size:1rem;color:#4A1D96}
+.analogy p{margin:0;color:#3A1875;font-size:.97rem}
+.analogy p+p{margin-top:8px}
+.note{border-left:4px solid var(--hot);background:var(--hot-s);border-radius:0 var(--r) var(--r) 0;padding:13px 18px;margin:16px 0}
+.note.warn{border-color:var(--warn);background:var(--warn-s)}
+.note.good{border-color:var(--good);background:var(--good-s)}
+.note b{font-family:var(--ui)}
+
+.btn{border:2px solid var(--ink);background:var(--ink);color:#fff;border-radius:var(--r);padding:9px 16px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:var(--ui)}
+.btn:hover{background:#140A24}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.ghost:hover{background:var(--grid)}
+.btn.ghost[aria-pressed="true"]{background:var(--ink);color:#fff}
+.btn.accent{background:var(--hot);border-color:var(--hot)}
+.btn.accent:hover{background:#5920B0}
+.btn.small{padding:6px 11px;font-size:.78rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.feedback{margin-top:14px;padding:12px 16px;border-radius:var(--r);font-size:.94rem;display:none}
+.feedback.show{display:block}
+.feedback.good{background:var(--good-s);border-left:4px solid var(--good)}
+.feedback.bad{background:var(--bad-s);border-left:4px solid var(--bad)}
+.feedback ul{margin:8px 0 0;padding-left:20px}
+
+/* ---- flashcards ---- */
+.flashgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.flashcard{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:14px 16px;cursor:pointer;min-height:110px}
+.flashcard b{display:block;font-family:var(--ui);font-size:.95rem;margin-bottom:6px}
+.flashcard .front{color:var(--ink2);font-size:.86rem}
+.flashcard .back{display:none;font-size:.84rem;color:var(--ink2)}
+.flashcard.flipped .front{display:none}
+.flashcard.flipped .back{display:block}
+.flashcard.flipped{background:var(--hot-s);border-color:var(--hot)}
+
+/* ---- opts (quick MCQ) ---- */
+.opts{display:grid;gap:8px;margin-top:10px}
+.opt{text-align:left;border:2px solid var(--ink);background:var(--card);border-radius:var(--r);padding:11px 14px;cursor:pointer;font-size:.92rem;display:flex;gap:10px}
+.opt:hover{background:var(--hot-s)}
+.opt.correct{background:var(--good-s);border-color:var(--good)}
+.opt.wrong{background:var(--bad-s);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.opt .k{font-family:var(--mono);font-weight:700;color:var(--ink3)}
+
+/* ---- diagram canvas ---- */
+.dcwrap{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:18px}
+.dctoolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.dctoolbar .sep{width:2px;height:24px;background:var(--grid);margin:0 4px}
+.dccanvas{width:100%;touch-action:none;background:
+  linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;border:2px dashed var(--grid);border-radius:var(--r);display:block}
+.dcnode{cursor:grab}
+.dcnode.selected rect, .dcnode.selected ellipse, .dcnode.selected path{stroke:var(--hot)!important;stroke-width:3px!important}
+.dcnode text{font-family:var(--ui);font-size:12px;fill:var(--ink);pointer-events:none;user-select:none}
+.dcedgehit{stroke:transparent;stroke-width:9px;cursor:pointer}
+.dcedgeline{stroke:var(--ink);stroke-width:2px;fill:none;marker-end:url(#dcarrow)}
+.dcedgelabel{font-family:var(--ui);font-size:11px;fill:var(--ink2);cursor:pointer;user-select:none}
+.dccard{fill:var(--hot-s);stroke:var(--ink)}
+.dccardbadge{font-family:var(--mono);font-size:11px;fill:#fff;cursor:pointer;user-select:none}
+.dcbadgebg{fill:var(--ink);cursor:pointer}
+
+/* ---- test ---- */
+.testhead{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.meter{flex:1 1 180px;height:8px;background:var(--grid);border-radius:999px;overflow:hidden;min-width:140px}
+.meter i{display:block;height:100%;background:var(--hot);width:0;transition:width .3s}
+.qcard{background:var(--card);border:2px solid var(--ink);border-radius:var(--r);padding:22px}
+.qnum{font-family:var(--mono);font-size:.76rem;color:var(--ink3)}
+.qtext{font-size:1.08rem;font-family:var(--ui);margin:10px 0 4px;line-height:1.35}
+.bigscore{font-family:var(--ui);font-size:4rem;font-weight:700;line-height:1}
+.scorecard{text-align:center;padding:32px 20px}
+.breakdown{display:grid;gap:9px;max-width:440px;margin:24px auto 0;text-align:left}
+.bd{display:flex;align-items:center;gap:10px;font-size:.9rem}
+.bd .lbl{flex:1}
+.bd .bar{width:100px;height:7px;background:var(--grid);border-radius:999px;overflow:hidden}
+.bd .bar i{display:block;height:100%;background:var(--good)}
+.bd .n{font-family:var(--mono);font-size:.8rem;color:var(--ink2);min-width:3.4em;text-align:right}
+.hide{display:none!important}
+footer{margin-top:50px;border-top:2px solid var(--ink);padding:24px 0 54px;color:var(--ink3);font-size:.85rem}
+footer a{color:var(--hot)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="bar-in">
+    <span class="brand">CFBC <span class="sub">· CS Unit 2</span></span>
+    <nav class="jump" id="jumpnav">
+      <a class="home" href="https://enoete.github.io/compsciu2_hub/">← Unit 2 hub</a>
+      <a href="#family">Diagram family</a>
+      <a href="#dfd">DFDs</a>
+      <a href="#erd">ERDs</a>
+      <a href="#glossary">Glossary</a>
+      <a href="#test">Unit test</a>
+    </nav>
+  </div>
+  <div class="prog"><i id="progBar"></i></div>
+</header>
+
+<main>
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">MODULE 2 · LESSON 2 · SYSTEM DESIGN</div>
+  <h1>Draw the system before anyone builds it</h1>
+  <p class="lede">An architect doesn't let builders start until there's a blueprint. A systems analyst doesn't let programmers start until there's a diagram. Today you draw the blueprints yourself — on an actual canvas, with your work checked for you.</p>
+</div></header>
+
+<!-- ============================ DIAGRAM FAMILY ============================ -->
+<section id="family"><div class="wrap">
+  <div class="tag" style="background:var(--hot)">🗺️ THE FAMILY</div>
+  <h2>Six diagrams, six different questions</h2>
+  <p class="sub">None of these diagrams compete with each other — each answers a question the others can't. Flip each card to see what it actually draws and when you'd reach for it.</p>
+  <div class="flashgrid" id="flashGrid"></div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>🎯 Which diagram answers this question?</h3>
+    <div id="familyMatch"></div>
+  </div>
+</div></section>
+
+<!-- ============================ DFD ============================ -->
+<section id="dfd"><div class="wrap">
+  <div class="tag" style="background:var(--dfd)">🌊 DATA FLOW DIAGRAMS</div>
+  <h2>Tracing data the way a letter moves through a post office</h2>
+  <p class="sub">A DFD doesn't care about buttons or screens — only about where data comes from, where it's processed, where it's stored, and where it ends up.</p>
+
+  <div class="analogy">
+    <h4>📮 The post office</h4>
+    <p>You (an <b>external entity</b>) drop a letter in the box. A sorting station (a <b>process</b>) reads the address and routes it. It might sit in a mail bag overnight (a <b>data store</b>) before the next leg. Eventually it reaches another person (another <b>external entity</b>). The letter itself, moving between these, is the <b>data flow</b> — drawn as an arrow, always labelled with what's actually moving.</p>
+  </div>
+
+  <div class="card">
+    <h3>🔤 The four symbols</h3>
+    <div class="flashgrid" id="dfdLegend"></div>
+  </div>
+
+  <div class="note warn">
+    <b>Four rules that make a DFD illegal — the exam loves these:</b>
+    <ul style="margin:8px 0 0;padding-left:20px">
+      <li>A data flow straight between two <b>external entities</b> — they only ever talk through a process.</li>
+      <li>A data flow straight between two <b>data stores</b> — same reason, a process has to move the data.</li>
+      <li>A data flow with no label — every arrow must say what's actually moving.</li>
+      <li>A <b>process</b> with no input ("a miracle") or no output ("a black hole") — a process that does nothing to nothing, isn't a process.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🔧 Challenge 1 — Library Book Borrowing System</h3>
+    <p class="sub" style="margin-bottom:10px">Build a Level-1 DFD for: a <b>Member</b> can borrow a book and can search the catalogue. A <b>Check Out Book</b> process records the borrow in <b>Book Records</b>. A <b>Search Catalogue</b> process looks up <b>Book Records</b> and returns results to the Member. Use the toolbar to add shapes, connect them, and label every flow.</p>
+    <div id="dfdCanvas1"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔧 Challenge 2 — Pizza Ordering System</h3>
+    <p class="sub" style="margin-bottom:10px">A <b>Customer</b> places an order with a <b>Take Order</b> process, which saves it to an <b>Orders</b> data store. A <b>Prepare Pizza</b> process reads the order from the store and sends the finished pizza back to the Customer. Build it from scratch.</p>
+    <div id="dfdCanvas2"></div>
+  </div>
+</div></section>
+
+<!-- ============================ ERD ============================ -->
+<section id="erd"><div class="wrap">
+  <div class="tag" style="background:var(--erd)">🗄️ ENTITY-RELATIONSHIP DIAGRAMS</div>
+  <h2>The data's own family tree</h2>
+  <p class="sub">Where a DFD tracks data moving around, an ERD maps how the stored data relates to itself — this is the diagram that becomes your actual database tables.</p>
+
+  <div class="analogy">
+    <h4>🏫 The school office filing cabinet</h4>
+    <p>A <b>student</b> is one kind of thing worth a file of its own. So is a <b>course</b>. So is a <b>teacher</b>. The interesting part isn't the files — it's the string connecting them: one teacher <i>teaches</i> many courses, and many students <i>enrol in</i> many courses. That connecting word is the <b>relationship</b>, and how many of each side can be on either end is the <b>cardinality</b>.</p>
+  </div>
+
+  <div class="card">
+    <h3>🔤 The symbols</h3>
+    <div class="flashgrid" id="erdLegend"></div>
+  </div>
+
+  <div class="note good">
+    <b>Cardinality, plainly:</b> "1" means exactly one of that entity is involved on that side of the relationship. "M" (many) means any number can be. A teacher teaching many courses but each course having one teacher is <b>1 : M</b>. Students and courses, where each can have many of the other, is <b>M : M</b>.
+  </div>
+
+  <div class="card">
+    <h3>🔧 Challenge — School Enrolment</h3>
+    <p class="sub" style="margin-bottom:10px">Build the ERD for: a <b>Teacher</b> teaches many <b>Course</b>s, but each course has one teacher (1:M). A <b>Student</b> enrols in many courses, and each course has many students (M:M). Add the three entities, connect them, label each relationship, and click the cardinality badges until they read correctly.</p>
+    <div id="erdCanvas1"></div>
+  </div>
+</div></section>
+
+<!-- ============================ CONDENSED DIAGRAMS ============================ -->
+<section id="other"><div class="wrap">
+  <div class="tag" style="background:var(--warn)">📐 THE REST OF THE TOOLBOX</div>
+  <h2>Five more diagrams, in brief</h2>
+  <p class="sub">You won't build these on a canvas today, but you do need to recognise what each is for. Flip every card, then take the quick check.</p>
+  <div class="flashgrid" id="otherGrid"></div>
+  <div class="card" style="margin-top:20px">
+    <h3>🎯 Quick check</h3>
+    <div id="otherQuiz"></div>
+  </div>
+</div></section>
+
+<!-- ============================ GLOSSARY ============================ -->
+<section id="glossary"><div class="wrap">
+  <h2>Glossary</h2>
+  <div class="card" style="font-size:.94rem">
+    <p><b>Data Flow Diagram (DFD)</b> — a diagram tracing how data moves between external entities, processes, and data stores.</p>
+    <p><b>External entity</b> — a person, organisation or system outside the system boundary that sends or receives data.</p>
+    <p><b>Process</b> — a step that transforms or acts on data.</p>
+    <p><b>Data store</b> — a place data is held at rest (a file, a database table) between processes.</p>
+    <p><b>Entity-Relationship Diagram (ERD)</b> — a diagram showing how stored data entities relate to one another.</p>
+    <p><b>Entity</b> (ERD) — a distinct thing the system stores data about (e.g. Student, Course).</p>
+    <p><b>Relationship</b> — how two entities are connected (e.g. a Student <i>enrols in</i> a Course).</p>
+    <p><b>Cardinality</b> — how many of one entity can relate to how many of another (1:1, 1:M, M:M).</p>
+    <p><b>Class diagram</b> — shows a system's classes, their attributes and methods, and how classes relate.</p>
+    <p><b>Use case diagram</b> — shows the actors of a system and the goals (use cases) they can perform.</p>
+    <p><b>Structure chart</b> — shows a program broken into modules in a hierarchy, with data passed between them.</p>
+    <p><b>HIPO chart</b> — Hierarchy plus Input-Process-Output; a structure chart with each module's inputs and outputs documented alongside it.</p>
+    <p><b>CASE tool</b> — Computer-Aided Software Engineering software that helps build and manage these diagrams and specifications.</p>
+  </div>
+</div></section>
+
+<!-- ============================ TEST ============================ -->
+<section id="test"><div class="wrap">
+  <h2>Unit test</h2>
+  <p class="sub">Twenty-six questions, nothing recorded, worked explanation on every answer.</p>
+
+  <div id="testIntro" class="card">
+    <h3 style="margin-bottom:8px">Before you start</h3>
+    <ul style="color:var(--ink2);font-size:.95rem;margin:0 0 6px;padding-left:20px">
+      <li><b>Part A</b> — the diagram family &amp; when to use each (6)</li>
+      <li><b>Part B</b> — Data Flow Diagrams (8)</li>
+      <li><b>Part C</b> — Entity-Relationship Diagrams (8)</li>
+      <li><b>Part D</b> — class, use case, structure, HIPO, CASE tools (4)</li>
+    </ul>
+    <div class="btnrow"><button class="btn accent" id="testStart">Start the test</button></div>
+  </div>
+
+  <div id="testRun" class="hide">
+    <div class="testhead">
+      <span class="mono" id="testPos"></span>
+      <div class="meter"><i id="testMeter"></i></div>
+      <span class="mono" id="testScore"></span>
+    </div>
+    <div class="qcard" id="qcard"></div>
+    <div class="btnrow"><button class="btn ghost" id="testQuit">End test early</button></div>
+  </div>
+
+  <div id="testDone" class="hide">
+    <div class="card scorecard">
+      <div class="bigscore" id="doneScore"></div>
+      <div class="mono" id="doneGrade"></div>
+      <p style="max-width:44ch;margin:16px auto 0;color:var(--ink2)" id="doneMsg"></p>
+      <div class="breakdown" id="doneBreak"></div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn accent" id="retryWrong">Retry only what I missed</button>
+        <button class="btn ghost" id="retryAll">Start over</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  Computer Science Unit 2 · Clarence Fitzroy Bryant College · Module 2, Lesson 2.
+  Nothing on this page is saved or sent anywhere.
+</div></footer>
+
+<script>
+const PARTS = {A:'The diagram family', B:'Data Flow Diagrams', C:'Entity-Relationship Diagrams', D:'Class, Use Case, Structure, HIPO & CASE'};
+const TQ = [
+{p:'A', q:'Which diagram models a program\'s module hierarchy, not data moving between external systems?', opts:['Structure Chart','Data Flow Diagram','Entity-Relationship Diagram','Use Case Diagram'], a:0, why:'A Structure Chart is about modules calling modules inside one program — a DFD is about data moving in and out of the system.'},
+{p:'A', q:'Which diagram is built around actors and the goals (use cases) they can perform?', opts:['Class Diagram','Use Case Diagram','HIPO Chart','Structure Chart'], a:1, why:'Actors and their goals are the defining feature of a Use Case Diagram.'},
+{p:'A', q:'Which diagram most directly becomes a set of database tables?', opts:['Entity-Relationship Diagram','Data Flow Diagram','Structure Chart','Use Case Diagram'], a:0, why:'Entities in an ERD map almost directly onto database tables, with relationships becoming foreign keys.'},
+{p:'A', q:'Which diagram traces data between external entities, processes and data stores?', opts:['Class Diagram','HIPO Chart','Data Flow Diagram','Entity-Relationship Diagram'], a:2, why:'Tracing data movement between those three kinds of shape is exactly what a DFD does.'},
+{p:'A', q:'Which diagram explicitly documents the input and output of every single module?', opts:['Structure Chart','HIPO Chart','Use Case Diagram','Entity-Relationship Diagram'], a:1, why:'HIPO = Hierarchy plus Input-Process-Output — the I/O documentation is the whole point.'},
+{p:'A', q:'Which diagram uses a hollow-triangle arrow to show inheritance between two classes?', opts:['Use Case Diagram','Structure Chart','Class Diagram','Data Flow Diagram'], a:2, why:'Inheritance notation belongs only to Class Diagrams.'},
+{p:'B', q:'In a DFD, an external entity is drawn as:', opts:['An oval','A rectangle','A diamond','An open-ended box'], a:1, why:'External entities (people, organisations, other systems) are drawn as plain rectangles.'},
+{p:'B', q:'In a DFD, a process is drawn as:', opts:['A rectangle','An open-ended box','A rounded box or circle, usually numbered','An oval'], a:2, why:'Processes — the steps that transform data — are drawn as rounded boxes or circles.'},
+{p:'B', q:'In a DFD, a data store is drawn as:', opts:['A diamond','An open-ended box or parallel lines, labelled D1, D2…','A stick figure','A rounded box'], a:1, why:'Data stores (files, database tables) are drawn as open-ended boxes labelled D1, D2 and so on.'},
+{p:'B', q:'Why can two external entities never connect directly on a valid DFD?', opts:['It would make the diagram too crowded','External entities can only appear once each','A process must sit between them — the system itself must do something with the data','Only data stores can connect to entities'], a:2, why:'External entities only ever communicate through a process inside the system — direct entity-to-entity flow is one of the classic DFD rule violations.'},
+{p:'B', q:'Why can two data stores never connect directly on a valid DFD?', opts:['Data stores can only hold one record each','A process must move the data between them','Data stores are always drawn on opposite sides of the page','It would create an infinite loop'], a:1, why:'Just like external entities, two data stores can only exchange data through a process.'},
+{p:'B', q:'A process with no outgoing data flow at all is nicknamed a:', opts:['Miracle','Black hole','Dead end','Sink'], a:1, why:'A process that only consumes data and produces nothing is called a "black hole" — data goes in and nothing ever comes out.'},
+{p:'B', q:'A process with no incoming data flow at all is nicknamed a:', opts:['Black hole','Source','Miracle','Loop'], a:2, why:'A process that produces output from nothing is called a "miracle" — there\'s no input to explain where the data came from.'},
+{p:'B', q:'Every data flow arrow on a valid DFD must have:', opts:['A number','A colour code','A label describing what data is moving','A timestamp'], a:2, why:'An unlabelled flow is a drawing error — every arrow must say what is actually moving along it.'},
+{p:'C', q:'In an ERD, an entity represents:', opts:['A step that transforms data','A distinct thing the system stores data about','A person outside the system','A module in a program'], a:1, why:'An entity is a distinct "thing" — Student, Course, Product — that the system holds data about.'},
+{p:'C', q:'In an ERD, a relationship represents:', opts:['How two entities are connected to each other','The programming language used','A single attribute','A data flow between processes'], a:0, why:'A relationship describes how two entities relate — e.g. a Student "enrols in" a Course.'},
+{p:'C', q:'A Teacher–Course relationship with cardinality 1:M most likely means:', opts:['Each teacher teaches exactly one course, and vice versa','One teacher can teach many courses, but each course has one teacher','Many teachers can teach many courses','Courses don\'t need teachers'], a:1, why:'1:M means one side (Teacher) can relate to many of the other (Course), while each Course has only one Teacher.'},
+{p:'C', q:'A Student–Course relationship with cardinality M:M means:', opts:['Each student takes exactly one course','Each course has exactly one student','Many students can enrol in many courses, and vice versa','Students cannot enrol in more than one course'], a:2, why:'M:M means both sides can have many of the other — many students per course, and many courses per student.'},
+{p:'C', q:'An ERD\'s entities typically become, in an actual database:', opts:['Tables','Programs','Use cases','Modules'], a:0, why:'Each entity generally becomes a table, with its attributes becoming that table\'s columns.'},
+{p:'C', q:'In full Chen ERD notation, a relationship is drawn as:', opts:['A rectangle','An oval','A diamond','A triangle'], a:2, why:'Chen notation draws entities as rectangles, attributes as ovals, and relationships as diamonds.'},
+{p:'C', q:'In full Chen ERD notation, an attribute is drawn as:', opts:['An oval, connected to its entity, with primary keys underlined','A rectangle','A diamond','A dashed line'], a:0, why:'Attributes are ovals attached to their entity, and the primary key attribute is underlined.'},
+{p:'C', q:'When building an ERD by hand, what should you identify first?', opts:['The cardinalities','The relationships','The entities','The database engine'], a:2, why:'You need the "things" (entities) identified before you can work out how they relate to each other.'},
+{p:'D', q:'A hollow-triangle arrow between two classes on a Class Diagram means:', opts:['Association','Inheritance ("is-a")','Aggregation ("has-a")','Data flow'], a:1, why:'The hollow-triangle arrow is UML\'s specific notation for inheritance.'},
+{p:'D', q:'On a Use Case Diagram, an actor is drawn as:', opts:['A rectangle','An oval','A stick figure','A diamond'], a:2, why:'Actors — the types of user — are drawn as stick figures outside the system boundary.'},
+{p:'D', q:'HIPO stands for:', opts:['Hierarchy plus Input-Process-Output','High-level Input-Process-Output','Hierarchical Interface for Program Objects','Hidden Input-Process-Output'], a:0, why:'HIPO = Hierarchy plus Input-Process-Output — a structure chart with each module\'s I/O documented.'},
+{p:'D', q:'draw.io, Visio and Lucidchart are all examples of:', opts:['Programming languages','Database management systems','CASE tools','Operating systems'], a:2, why:'They are Computer-Aided Software Engineering (CASE) tools used to build and maintain these diagrams.'}
+];
+let T = {order:[], i:0, answers:{}, started:false};
+const grade = p => p >= 85 ? 'A' : p >= 75 ? 'B' : p >= 65 ? 'C' : p >= 50 ? 'D' : 'F';
+function testStart(list){
+  T = {order: list || TQ.map((_,i)=>i), i:0, answers:{}, started:true};
+  $('#testIntro').classList.add('hide'); $('#testDone').classList.add('hide');
+  $('#testRun').classList.remove('hide');
+  testRender();
+}
+function testRender(){
+  const idx = T.order[T.i], q = TQ[idx];
+  $('#testPos').textContent = `${T.i+1} / ${T.order.length}`;
+  $('#testMeter').style.width = (T.i / T.order.length * 100) + '%';
+  const right = Object.entries(T.answers).filter(([k,v]) => v === TQ[k].a).length;
+  $('#testScore').textContent = `${right} correct`;
+  $('#qcard').innerHTML = `
+    <span class="qnum">Question ${T.i+1} · Part ${q.p} · ${esc(PARTS[q.p])}</span>
+    <p class="qtext">${esc(q.q)}</p>
+    <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="feedback" id="qfb"></div>`;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const qcard = $('#qcard');
+  if(qcard) qcard.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if(!b || b.disabled) return;
+    const idx = T.order[T.i], q = TQ[idx], pick = +b.dataset.i;
+    T.answers[idx] = pick;
+    $$('#qcard .opt').forEach((o,i) => { o.disabled = true; if(i===q.a) o.classList.add('correct'); else if(i===pick) o.classList.add('wrong'); });
+    const f = $('#qfb'); f.className = 'feedback show ' + (pick===q.a ? 'good' : 'bad');
+    const last = T.i === T.order.length - 1;
+    f.innerHTML = `<b>${pick===q.a ? 'Correct.' : 'The answer is ' + 'ABCD'[q.a] + '.'}</b> ${esc(q.why)}
+      <div class="btnrow"><button class="btn accent" id="qNext">${last ? 'See my results' : 'Next question'}</button></div>`;
+    $('#qNext').addEventListener('click', () => {
+      if(last) return testFinish();
+      T.i++; testRender(); qcard.scrollIntoView({block:'nearest'});
+    });
+  });
+  $('#testStart').addEventListener('click', () => testStart());
+  $('#testQuit').addEventListener('click', testFinish);
+  $('#retryAll').addEventListener('click', () => testStart());
+});
+function testFinish(){
+  $('#testRun').classList.add('hide'); $('#testDone').classList.remove('hide');
+  const asked = T.order.length;
+  const right = T.order.filter(i => T.answers[i] === TQ[i].a).length;
+  const pct = Math.round(right/asked*100);
+  $('#doneScore').textContent = `${right}/${asked}`;
+  $('#doneGrade').textContent = `${pct}%  ·  grade ${grade(pct)}`;
+  $('#doneMsg').textContent = pct >= 85
+    ? 'Strong across the board — you can tell these diagrams apart cold, not just recall their names.'
+    : pct >= 65
+      ? 'Solid, with a couple of gaps. Check your weakest part below and revisit that section\'s canvas or flashcards.'
+      : 'Go back through the DFD and ERD canvases again, then retry — building one sticks far better than reading about one.';
+  const parts = Object.keys(PARTS).map(p => {
+    const ids = T.order.filter(i => TQ[i].p === p);
+    const ok = ids.filter(i => T.answers[i] === TQ[i].a).length;
+    return {p, ok, n: ids.length};
+  }).filter(x => x.n);
+  $('#doneBreak').innerHTML = parts.map(x => `<div class="bd">
+      <span class="lbl"><b>Part ${x.p}</b> · ${esc(PARTS[x.p])}</span>
+      <span class="bar"><i style="width:${x.n ? x.ok/x.n*100 : 0}%"></i></span>
+      <span class="n">${x.ok}/${x.n}</span></div>`).join('');
+  const missed = T.order.filter(i => T.answers[i] !== TQ[i].a);
+  $('#retryWrong').classList.toggle('hide', !missed.length);
+  $('#retryWrong').onclick = () => testStart(missed);
+  $('#testDone').scrollIntoView({block:'start'});
+}
+
+const $  = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+/* ---------------- top progress bar + section highlight ---------------- */
+(function(){
+  const bar = $('#progBar'), sections = $$('main section');
+  function onScroll(){
+    const h = document.documentElement;
+    const pct = h.scrollTop / (h.scrollHeight - h.clientHeight || 1) * 100;
+    bar.style.width = pct + '%';
+    let current = null;
+    sections.forEach(s => { if(s.getBoundingClientRect().top < 140) current = s.id; });
+    $$('#jumpnav a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#'+current));
+  }
+  document.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+function makeFlashcards(container, items){
+  if(!container) return;
+  container.innerHTML = items.map((it,i)=>`<div class="flashcard" data-i="${i}">
+      <b>${it.icon ? it.icon+' ' : ''}${esc(it.title)}</b>
+      <div class="front">${esc(it.front)}</div>
+      <div class="back">${it.back}</div>
+    </div>`).join('');
+  container.querySelectorAll('.flashcard').forEach(c=>c.addEventListener('click', ()=>c.classList.toggle('flipped')));
+}
+function makeMCQList(container, idPrefix, qs){
+  if(!container) return;
+  container.innerHTML = qs.map((q,i)=>`<div class="card" data-correct="${esc(q.correct)}">
+      <p style="margin-bottom:8px"><b>${i+1}.</b> ${q.brief}</p>
+      <div class="opts">${q.opts.map(o=>`<button class="opt" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+      <div class="feedback" id="${idPrefix}${i}"></div>
+    </div>`).join('');
+  container.addEventListener('click', e=>{
+    const b = e.target.closest('.opt'); if(!b) return;
+    const card = b.closest('.card'); if(card.dataset.locked) return; card.dataset.locked = '1';
+    const i = [...container.children].indexOf(card), q = qs[i], correct = q.correct, pick = b.dataset.o;
+    $$('.opt', card).forEach(o=>{ o.disabled = true; if(o.dataset.o===correct) o.classList.add('correct'); else if(o.dataset.o===pick) o.classList.add('wrong'); });
+    const fb = $('#'+idPrefix+i);
+    fb.className = 'feedback show ' + (pick===correct ? 'good' : 'bad');
+    fb.innerHTML = (pick===correct ? '<b>Correct.</b> ' : '<b>Not quite — '+esc(correct)+'.</b> ') + q.why;
+  });
+}
+
+/* ---------------- DIAGRAM FAMILY ---------------- */
+const DIAGRAM_NAMES = ['Class Diagram','Use Case Diagram','Structure Chart','HIPO Chart','Data Flow Diagram','Entity-Relationship Diagram'];
+makeFlashcards($('#flashGrid'), [
+  {icon:'📐', title:'Class Diagram',       front:'Which classes does my system need, and how do they relate?', back:"Shows the system's classes, their attributes and methods, and relationships like inheritance — the blueprint for object-oriented code."},
+  {icon:'🎭', title:'Use Case Diagram',    front:'What can each kind of user actually do with this system?', back:'Shows actors (user types) and the use cases (goals) they can perform, and how actors relate to the system.'},
+  {icon:'🏗️', title:'Structure Chart',     front:'How is this program broken into modules, and what talks to what?', back:'Shows a program as a hierarchy of modules, with arrows for the data passed between them.'},
+  {icon:'📋', title:'HIPO Chart',          front:'What exactly goes into, and comes out of, each module?', back:'A structure chart plus an Input-Process-Output breakdown for every module.'},
+  {icon:'🌊', title:'Data Flow Diagram',   front:'Where does data come from, get processed, get stored, and end up?', back:"Traces data moving between external entities, processes and data stores — you'll build one below."},
+  {icon:'🗄️', title:'Entity-Relationship Diagram', front:'How does my stored data relate to itself?', back:"Maps entities and the relationships between them, with cardinality — becomes your database tables."}
+]);
+(function(){
+  const FQ = [
+    {brief:"Which diagram shows a hollow-triangle arrow for inheritance between two classes?", correct:'Class Diagram', why:"Inheritance ('is-a') between classes is drawn only on a Class Diagram."},
+    {brief:"Which diagram shows a stick-figure actor connected to an oval goal like 'Borrow Book'?", correct:'Use Case Diagram', why:'Actors and their goals (use cases) are the defining feature of a Use Case Diagram.'},
+    {brief:"Which diagram traces a customer's order through a process, into a data store, and out again?", correct:'Data Flow Diagram', why:'Following data between external entities, processes and stores is exactly what a DFD does.'},
+    {brief:"Which diagram would tell you that a Teacher teaches many Courses, but each Course has one Teacher?", correct:'Entity-Relationship Diagram', why:'Cardinality between stored entities is an ERD concept.'},
+    {brief:"Which diagram shows a top module calling three lower modules, with parameters passed down to each?", correct:'Structure Chart', why:"A module hierarchy with data passed between modules is a Structure Chart."},
+    {brief:"Which diagram documents, for every module, exactly what comes in and what comes out?", correct:'HIPO Chart', why:"Input-Process-Output detail per module is the HIPO Chart's whole purpose."}
+  ].map(q => ({...q, opts: shuffle([q.correct, ...shuffle(DIAGRAM_NAMES.filter(n=>n!==q.correct)).slice(0,3)])}));
+  makeMCQList($('#familyMatch'), 'fam', FQ);
+})();
+
+/* ---------------- DFD / ERD LEGENDS ---------------- */
+makeFlashcards($('#dfdLegend'), [
+  {icon:'▭', title:'External Entity', front:'A plain rectangle.', back:'Someone or something outside the system boundary that sends or receives data — e.g. Customer, Supplier. Never processes data itself.'},
+  {icon:'▢', title:'Process',         front:'A rounded box (or circle), usually numbered.', back:"A step that transforms data — e.g. 'Check Out Book'. Must have at least one input and one output, or it's drawn wrong."},
+  {icon:'▭', title:'Data Store',      front:'An open-ended box, labelled D1, D2…', back:"Data at rest between processes — a file or database table, e.g. 'Book Records'."},
+  {icon:'→',  title:'Data Flow',      front:'A labelled arrow.', back:"The data itself, moving between the other three shapes. Always labelled with what's moving — a blank arrow is a drawing error."}
+]);
+makeFlashcards($('#erdLegend'), [
+  {icon:'▭', title:'Entity',       front:'A rectangle.', back:'A distinct thing the system stores data about — e.g. Student, Course.'},
+  {icon:'—', title:'Relationship', front:'A line between two entities, labelled with a verb.', back:"How two entities connect — e.g. a Student 'enrols in' a Course. (Full Chen notation draws this as a diamond; this page labels the connecting line directly.)"},
+  {icon:'1·M', title:'Cardinality', front:'A number or letter at each end of the line.', back:"How many of one entity can relate to how many of the other: 1 (exactly one) or M (many). Teacher–Course is 1:M; Student–Course is M:M."}
+]);
+
+/* ---------------- CONDENSED: the rest of the toolbox ---------------- */
+makeFlashcards($('#otherGrid'), [
+  {icon:'📐', title:'Class Diagram', front:"UML's blueprint for your classes.", back:"Each class is a box with three sections: name, attributes, methods. A hollow-triangle arrow means inheritance ('is-a'); a diamond means aggregation/composition ('has-a'). Example: a Book class might hold title and isbn, with methods borrow() and returnBook()."},
+  {icon:'🎭', title:'Use Case Diagram', front:'Who can do what.', back:"Stick-figure actors outside a system boundary, connected to oval 'use cases' inside it — e.g. a Member actor connects to 'Borrow Book' and 'Search Catalogue'. Shows scope and roles, not internal logic."},
+  {icon:'🏗️', title:'Structure Chart', front:"The program's module hierarchy.", back:'A tree of module boxes, a top module calling lower ones, with small labelled arrows showing parameters passed down and results passed back up. Shows structure inside one program, not data flow between external entities.'},
+  {icon:'📋', title:'HIPO Chart', front:'Structure chart plus the actual I/O.', back:'The hierarchy chart on top, then for each module an Input-Process-Output table: exactly what comes in, what happens to it, what comes out. A detailed design reference once the structure chart exists.'},
+  {icon:'🛠️', title:'CASE Tools', front:'Software that draws these diagrams for you.', back:'Computer-Aided Software Engineering tools — e.g. Lucidchart, draw.io, Visio, StarUML — used to build, store and keep these diagrams consistent across a whole project team, instead of everyone\'s own hand-drawn version.'}
+]);
+(function(){
+  const OQ = [
+    {brief:'A hollow-triangle arrow between two boxes on a diagram means:', opts:['Inheritance ("is-a")','Data flow','Cardinality','An external entity'], correct:'Inheritance ("is-a")', why:'That specific arrowhead is UML notation for inheritance, found only on Class Diagrams.'},
+    {brief:'Which diagram would show a "Librarian" stick figure connected to an oval labelled "Issue Fine"?', opts:['Use Case Diagram','Structure Chart','HIPO Chart','Entity-Relationship Diagram'], correct:'Use Case Diagram', why:'Stick-figure actors connected to oval goals are the Use Case Diagram\'s signature shapes.'},
+    {brief:'A diagram shows "Main Menu" calling "Add Student", "Edit Student" and "Delete Student" below it, with arrows for parameters. This is a:', opts:['Structure Chart','Data Flow Diagram','Class Diagram','Entity-Relationship Diagram'], correct:'Structure Chart', why:'A module calling other modules, with data passed between them, is a Structure Chart.'},
+    {brief:'Which diagram explicitly documents the inputs and outputs of every single module, not just the hierarchy?', opts:['HIPO Chart','Structure Chart','Use Case Diagram','Class Diagram'], correct:'HIPO Chart', why:'HIPO = Hierarchy plus Input-Process-Output — the I/O detail is the whole point.'},
+    {brief:'draw.io and Visio are examples of:', opts:['CASE tools','Programming languages','Operating systems','Database management systems'], correct:'CASE tools', why:'They are Computer-Aided Software Engineering tools used to build and manage these diagrams.'}
+  ];
+  makeMCQList($('#otherQuiz'), 'oth', OQ);
+})();
+
+/* ================================================================
+   DIAGRAM VALIDATION — pure structural graph matching, no DOM.
+   Matches a canonical spec against whatever the student built,
+   by type + label-keyword overlap, so exact wording never matters.
+   ================================================================ */
+function normText(s){ return String(s||'').toLowerCase(); }
+function labelHasAny(label, keywords){
+  if(!keywords || !keywords.length) return true;
+  const l = normText(label);
+  return keywords.some(k => l.includes(normText(k)));
+}
+function matchNodes(specNodes, studentNodes){
+  const used = new Set();
+  const matches = {};
+  const typeMismatches = [];
+  specNodes.forEach(sn => {
+    let found = null;
+    for(const n of studentNodes){
+      if(used.has(n.id)) continue;
+      if(n.type === sn.type && labelHasAny(n.label, sn.labelKeywords)){ found = n; break; }
+    }
+    if(!found){
+      for(const n of studentNodes){
+        if(used.has(n.id)) continue;
+        if(labelHasAny(n.label, sn.labelKeywords)){ found = n; typeMismatches.push({spec: sn, student: n}); break; }
+      }
+    }
+    if(found){ matches[sn.key] = found.id; used.add(found.id); }
+  });
+  return { matches, typeMismatches };
+}
+function dfdEdgeExists(studentEdges, fromId, toId, keywords){
+  return studentEdges.find(e => e.from===fromId && e.to===toId && labelHasAny(e.label, keywords));
+}
+function dfdIllegalPatterns(nodes, edges){
+  const byId = Object.fromEntries(nodes.map(n=>[n.id,n]));
+  const issues = [];
+  edges.forEach(e=>{
+    const a = byId[e.from], b = byId[e.to];
+    if(!a || !b) return;
+    if(a.type==='entity' && b.type==='entity') issues.push(`A flow goes straight from "${esc(a.label)}" to "${esc(b.label)}" — two external entities can't talk directly, a process must sit between them.`);
+    if(a.type==='store' && b.type==='store') issues.push(`A flow goes straight from "${esc(a.label)}" to "${esc(b.label)}" — two data stores can't talk directly, a process must sit between them.`);
+    if(!e.label || !e.label.trim()) issues.push(`A flow between "${esc(a.label)}" and "${esc(b.label)}" has no label — every flow must say what data is moving.`);
+  });
+  nodes.filter(n=>n.type==='process').forEach(p=>{
+    const hasIn = edges.some(e=>e.to===p.id);
+    const hasOut = edges.some(e=>e.from===p.id);
+    if(!hasIn) issues.push(`"${esc(p.label)}" has no incoming flow — a process with no input is a "miracle".`);
+    if(!hasOut) issues.push(`"${esc(p.label)}" has no outgoing flow — a process with no output is a "black hole".`);
+  });
+  return issues;
+}
+function validateDFD(nodes, edges, spec){
+  const { matches, typeMismatches } = matchNodes(spec.nodes, nodes);
+  const missingNodes = spec.nodes.filter(sn => !matches[sn.key]);
+  const missingEdges = [];
+  spec.edges.forEach(se => {
+    const fromId = matches[se.from], toId = matches[se.to];
+    if(!fromId || !toId){ missingEdges.push(se); return; }
+    if(!dfdEdgeExists(edges, fromId, toId, se.labelKeywords)) missingEdges.push(se);
+  });
+  const issues = dfdIllegalPatterns(nodes, edges);
+  return {
+    pass: missingNodes.length===0 && missingEdges.length===0 && typeMismatches.length===0 && issues.length===0,
+    missingNodes, missingEdges, typeMismatches, issues
+  };
+}
+function validateERD(nodes, edges, spec){
+  const entityNodes = nodes.filter(n=>n.type==='entity');
+  const { matches, typeMismatches } = matchNodes(spec.nodes, entityNodes);
+  const missingNodes = spec.nodes.filter(sn => !matches[sn.key]);
+  const missingEdges = [];
+  const cardIssues = [];
+  spec.edges.forEach(se => {
+    const aId = matches[se.aKey], bId = matches[se.bKey];
+    if(!aId || !bId){ missingEdges.push(se); return; }
+    const found = edges.find(e => ((e.from===aId && e.to===bId) || (e.from===bId && e.to===aId)) && labelHasAny(e.label, se.labelKeywords));
+    if(!found){ missingEdges.push(se); return; }
+    const cardAGot = found.from===aId ? found.cardFrom : found.cardTo;
+    const cardBGot = found.from===bId ? found.cardFrom : found.cardTo;
+    if(cardAGot !== se.cardA || cardBGot !== se.cardB) cardIssues.push({edge: se, gotA: cardAGot, gotB: cardBGot});
+  });
+  return {
+    pass: missingNodes.length===0 && missingEdges.length===0 && typeMismatches.length===0 && cardIssues.length===0,
+    missingNodes, missingEdges, typeMismatches, cardIssues
+  };
+}
+function renderDFDResult(r, fb){
+  if(r.pass){
+    fb.className = 'feedback show good';
+    fb.innerHTML = '<b>✅ Correct.</b> Every required shape and flow is there, correctly typed and labelled, with no illegal patterns.';
+    return;
+  }
+  const lines = [];
+  r.missingNodes.forEach(n => lines.push(`Missing a <b>${esc(n.type)}</b> for ${esc(n.name)}.`));
+  r.typeMismatches.forEach(t => lines.push(`"${esc(t.student.label)}" is drawn as a <b>${esc(t.student.type)}</b>, but it should be a <b>${esc(t.spec.type)}</b>.`));
+  r.missingEdges.forEach(e => lines.push(`Missing a flow: ${esc(e.name)}.`));
+  r.issues.forEach(i => lines.push(i));
+  fb.className = 'feedback show bad';
+  fb.innerHTML = `<b>Not quite there yet — ${lines.length} thing${lines.length===1?'':'s'} to fix:</b><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+}
+function renderERDResult(r, fb){
+  if(r.pass){
+    fb.className = 'feedback show good';
+    fb.innerHTML = '<b>✅ Correct.</b> Every entity and relationship is there, correctly labelled, with the right cardinality on both ends.';
+    return;
+  }
+  const lines = [];
+  r.missingNodes.forEach(n => lines.push(`Missing an <b>entity</b> for ${esc(n.name)}.`));
+  r.typeMismatches.forEach(t => lines.push(`"${esc(t.student.label)}" should be an <b>entity</b>.`));
+  r.missingEdges.forEach(e => lines.push(`Missing a relationship: ${esc(e.name)}.`));
+  r.cardIssues.forEach(c => lines.push(`"${esc(c.edge.name)}" has the wrong cardinality — check both ends again.`));
+  fb.className = 'feedback show bad';
+  fb.innerHTML = `<b>Not quite there yet — ${lines.length} thing${lines.length===1?'':'s'} to fix:</b><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+}
+
+/* ================================================================
+   DIAGRAM CANVAS — a small reusable node/edge editor (drag to move,
+   click-click to connect, SVG-rendered, touch-friendly), shared by
+   every DFD and ERD challenge on this page.
+   ================================================================ */
+let dcUid = 0;
+function createDiagramCanvas(container, opts){
+  const W = opts.width || 700, H = opts.height || 440, NW = 120, NH = 50;
+  const uid = ++dcUid;
+  let nodes = [], edges = [], nextId = 1, mode = 'move', pending = null;
+
+  container.innerHTML = `
+    <div class="dcwrap">
+      <div class="dctoolbar">
+        ${opts.palette.map(p=>`<button class="btn small ghost" data-add="${esc(p.type)}" data-addlabel="${esc(p.label)}">+ ${esc(p.label)}</button>`).join('')}
+        <span class="sep"></span>
+        <button class="btn small ghost" data-mode="move" aria-pressed="true">✋ Move</button>
+        <button class="btn small ghost" data-mode="connect" aria-pressed="false">🔗 Connect</button>
+        <button class="btn small ghost" data-mode="delete" aria-pressed="false">🗑 Delete</button>
+        <span class="sep"></span>
+        <button class="btn small ghost" data-clear="1">Clear</button>
+        <button class="btn small accent" data-check="1">Check my diagram</button>
+      </div>
+      <svg class="dccanvas" viewBox="0 0 ${W} ${H}" height="${H}">
+        <defs><marker id="dcarrow-${uid}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#201433"/></marker></defs>
+        <g class="edgesLayer"></g>
+        <g class="nodesLayer"></g>
+      </svg>
+      <p class="sub" data-hint style="margin:10px 0 0;font-size:.84rem">Move mode: drag shapes apart if a flow line ends up running through one.</p>
+      <div class="feedback" data-fb></div>
+    </div>`;
+
+  const svg = container.querySelector('svg');
+  const edgesLayer = container.querySelector('.edgesLayer');
+  const nodesLayer = container.querySelector('.nodesLayer');
+  const fb = container.querySelector('[data-fb]');
+  const hintEl = container.querySelector('[data-hint]');
+
+  function wrapLabel(label){
+    const words = String(label).split(/\s+/);
+    const lines = []; let cur = '';
+    words.forEach(w=>{
+      const t = cur ? cur+' '+w : w;
+      if(t.length > 14 && cur){ lines.push(cur); cur = w; } else cur = t;
+    });
+    if(cur) lines.push(cur);
+    if(lines.length > 2){ lines.length = 2; lines[1] = lines[1].slice(0,12)+'…'; }
+    return lines;
+  }
+  function shapeSVG(type){
+    if(type==='process') return `<rect width="${NW}" height="${NH}" rx="20" ry="20" fill="#EDE5FB" stroke="#201433" stroke-width="2"/>`;
+    if(type==='store') return `<rect width="${NW}" height="${NH}" fill="#fff" stroke="none"/><path d="M0,0 H${NW} M0,${NH} H${NW}" stroke="#201433" stroke-width="2" fill="none"/>`;
+    return `<rect width="${NW}" height="${NH}" fill="#fff" stroke="#201433" stroke-width="2"/>`;
+  }
+  function ellipseClip(ax,ay,bx,by){
+    const dx = bx-ax, dy = by-ay, len = Math.hypot(dx,dy) || 1;
+    const ux = dx/len, uy = dy/len, halfW = NW/2, halfH = NH/2;
+    const denom = Math.sqrt((ux/halfW)**2 + (uy/halfH)**2) || 1;
+    const k = 1/denom;
+    return {x: ax+ux*k, y: ay+uy*k};
+  }
+  function renderNodes(){
+    nodesLayer.innerHTML = nodes.map(n=>{
+      const lines = wrapLabel(n.label);
+      const ty0 = NH/2 - (lines.length-1)*7 + 4;
+      const tspans = lines.map((l,i)=>`<tspan x="${NW/2}" y="${ty0 + i*14}">${esc(l)}</tspan>`).join('');
+      return `<g class="dcnode ${esc(n.type)} ${pending===n.id?'selected':''}" data-id="${n.id}" transform="translate(${n.x},${n.y})">
+        ${shapeSVG(n.type)}
+        <text text-anchor="middle">${tspans}</text>
+      </g>`;
+    }).join('');
+  }
+  function renderEdges(){
+    // Three passes across ALL edges, drawn in this order, so that no single
+    // edge's wide invisible hit-line can ever sit on top of — and steal
+    // clicks from — another edge's label or cardinality badge. Within an
+    // SVG, later markup paints (and hit-tests) above earlier markup.
+    const hitLines = [], visLines = [], labelsAndBadges = [];
+    edges.forEach(e=>{
+      const a = nodes.find(n=>n.id===e.from), b = nodes.find(n=>n.id===e.to);
+      if(!a || !b) return;
+      const acx=a.x+NW/2, acy=a.y+NH/2, bcx=b.x+NW/2, bcy=b.y+NH/2;
+      const p1 = ellipseClip(acx,acy,bcx,bcy), p2 = ellipseClip(bcx,bcy,acx,acy);
+      const mx = (p1.x+p2.x)/2, my = (p1.y+p2.y)/2;
+      hitLines.push(`<line class="dcedgehit" data-edge="${e.id}" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}"></line>`);
+      visLines.push(`<line class="dcedgeline" x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" marker-end="url(#dcarrow-${uid})"></line>`);
+      let cardBadges = '';
+      if(opts.cardinality){
+        const q1x = p1.x + (mx-p1.x)*0.3, q1y = p1.y + (my-p1.y)*0.3;
+        const q2x = p2.x + (mx-p2.x)*0.3, q2y = p2.y + (my-p2.y)*0.3;
+        cardBadges = `
+          <circle class="dcbadgebg" data-end="from" data-edge="${e.id}" cx="${q1x}" cy="${q1y}" r="10"></circle>
+          <text class="dccardbadge" data-end="from" data-edge="${e.id}" x="${q1x}" y="${q1y+3.5}" text-anchor="middle">${esc(e.cardFrom||'1')}</text>
+          <circle class="dcbadgebg" data-end="to" data-edge="${e.id}" cx="${q2x}" cy="${q2y}" r="10"></circle>
+          <text class="dccardbadge" data-end="to" data-edge="${e.id}" x="${q2x}" y="${q2y+3.5}" text-anchor="middle">${esc(e.cardTo||'1')}</text>`;
+      }
+      labelsAndBadges.push(`
+        <rect data-edge="${e.id}" x="${mx-30}" y="${my-9}" width="60" height="16" fill="#F1EEF7" opacity=".92"></rect>
+        <text class="dcedgelabel" data-edge="${e.id}" x="${mx}" y="${my+3}" text-anchor="middle">${esc(e.label || '(no label)')}</text>
+        ${cardBadges}`);
+    });
+    edgesLayer.innerHTML = `<g class="hitLayer">${hitLines.join('')}</g><g class="visLayer">${visLines.join('')}</g><g class="labelLayer">${labelsAndBadges.join('')}</g>`;
+  }
+  function render(){ renderNodes(); renderEdges(); }
+  function addNode(type, label){
+    // Spread new shapes across a 3-column, multi-row, zigzag grid rather
+    // than one straight row or column — a flow line between two shapes is
+    // far less likely to run straight through a third one in between
+    // before the student has dragged anything apart.
+    const col = nodes.length % 3, row = Math.floor(nodes.length/3);
+    const zigzag = (col % 2 === 1) ? 55 : 0;
+    nodes.push({id:'n'+(nextId++), type, label, x: 24+col*220, y: 24+row*140+zigzag});
+    render();
+  }
+  function setMode(m){
+    mode = m; pending = null;
+    container.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.mode===m)));
+    const hints = {move:'Move mode: drag shapes apart if a flow line ends up running through one.', connect:'Connect mode: click a shape, then click another to draw a flow between them. Click the same shape twice to cancel.', delete:'Delete mode: click a shape or a flow to remove it — if a line runs through a shape, switch to Move and drag them apart first so you click the right one.'};
+    hintEl.textContent = hints[m];
+    render();
+  }
+  container.addEventListener('click', e=>{
+    const addBtn = e.target.closest('[data-add]');
+    if(addBtn){
+      const label = prompt('Label this ' + addBtn.dataset.addlabel + ':', '');
+      if(label && label.trim()) addNode(addBtn.dataset.add, label.trim());
+      return;
+    }
+    const modeBtn = e.target.closest('[data-mode]');
+    if(modeBtn){ setMode(modeBtn.dataset.mode); return; }
+    const clearBtn = e.target.closest('[data-clear]');
+    if(clearBtn){ if(confirm('Clear the whole canvas?')){ nodes=[]; edges=[]; pending=null; render(); fb.className='feedback'; } return; }
+    const checkBtn = e.target.closest('[data-check]');
+    if(checkBtn){ opts.onCheck(nodes, edges, fb); return; }
+    const badge = e.target.closest('[data-end]');
+    if(badge){
+      const edge = edges.find(x=>x.id===badge.dataset.edge);
+      if(edge){ const key = badge.dataset.end==='from' ? 'cardFrom' : 'cardTo'; edge[key] = edge[key]==='1' ? 'M' : '1'; render(); }
+      return;
+    }
+    const edgeHit = e.target.closest('[data-edge]');
+    if(edgeHit && mode==='delete'){ edges = edges.filter(x=>x.id!==edgeHit.dataset.edge); render(); return; }
+    const nodeEl = e.target.closest('.dcnode');
+    if(nodeEl){
+      const id = nodeEl.dataset.id;
+      if(mode==='delete'){ nodes = nodes.filter(n=>n.id!==id); edges = edges.filter(ed=>ed.from!==id && ed.to!==id); render(); return; }
+      if(mode==='connect'){
+        if(pending===id){ pending=null; render(); return; }
+        if(pending){
+          const label = prompt('Label this flow — what data is moving?', '');
+          edges.push({id:'e'+(nextId++), from:pending, to:id, label:(label||'').trim(), cardFrom:'1', cardTo:'1'});
+          pending=null; render();
+        } else { pending = id; render(); }
+      }
+      return;
+    }
+    if(mode==='connect' && pending && e.target.closest('svg')){ pending = null; render(); }
+  });
+  let dragId = null, dragDX = 0, dragDY = 0;
+  function svgPoint(evt){
+    const rect = svg.getBoundingClientRect();
+    const scaleX = W/rect.width, scaleY = H/rect.height;
+    const touch = evt.touches && evt.touches[0];
+    const cx = (touch ? touch.clientX : evt.clientX) - rect.left;
+    const cy = (touch ? touch.clientY : evt.clientY) - rect.top;
+    return {x: cx*scaleX, y: cy*scaleY};
+  }
+  function startDrag(e){
+    if(mode!=='move') return;
+    const nodeEl = e.target.closest('.dcnode'); if(!nodeEl) return;
+    const id = nodeEl.dataset.id, n = nodes.find(x=>x.id===id); if(!n) return;
+    const p = svgPoint(e);
+    dragId = id; dragDX = p.x-n.x; dragDY = p.y-n.y;
+    e.preventDefault();
+  }
+  function moveDrag(e){
+    if(!dragId) return;
+    const n = nodes.find(x=>x.id===dragId); if(!n) return;
+    const p = svgPoint(e);
+    n.x = Math.max(0, Math.min(W-NW, p.x-dragDX));
+    n.y = Math.max(0, Math.min(H-NH, p.y-dragDY));
+    render();
+    e.preventDefault();
+  }
+  function endDrag(){ dragId = null; }
+  svg.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', moveDrag);
+  window.addEventListener('mouseup', endDrag);
+  svg.addEventListener('touchstart', startDrag, {passive:false});
+  svg.addEventListener('touchmove', moveDrag, {passive:false});
+  svg.addEventListener('touchend', endDrag);
+  render();
+  return { getGraph: () => ({nodes, edges}) };
+}
+
+/* ---------------- DFD challenge 1: Library Book Borrowing System ---------------- */
+(function(){
+  const host = $('#dfdCanvas1'); if(!host) return;
+  const SPEC = {
+    nodes: [
+      {key:'m',  type:'entity',  name:'the Member',                 labelKeywords:['member']},
+      {key:'p1', type:'process', name:'the Check Out Book process', labelKeywords:['check out','checkout','borrow']},
+      {key:'p3', type:'process', name:'the Search Catalogue process', labelKeywords:['search']},
+      {key:'d1', type:'store',   name:'the Book Records store',     labelKeywords:['book record','catalogue','catalog']}
+    ],
+    edges: [
+      {from:'m',  to:'p1', name:'Member → Check Out Book (a borrow request)',        labelKeywords:['borrow','request']},
+      {from:'p1', to:'d1', name:'Check Out Book → Book Records (updating the record)', labelKeywords:['update','record']},
+      {from:'m',  to:'p3', name:'Member → Search Catalogue (a search query)',        labelKeywords:['search','query']},
+      {from:'p3', to:'d1', name:'Search Catalogue → Book Records (looking records up)', labelKeywords:['lookup','query']},
+      {from:'d1', to:'p3', name:'Book Records → Search Catalogue (the matching details)', labelKeywords:['detail','result']},
+      {from:'p3', to:'m',  name:'Search Catalogue → Member (the search results)',    labelKeywords:['result']}
+    ]
+  };
+  createDiagramCanvas(host, {
+    palette: [{type:'entity', label:'External Entity'}, {type:'process', label:'Process'}, {type:'store', label:'Data Store'}],
+    onCheck: (nodes, edges, fb) => renderDFDResult(validateDFD(nodes, edges, SPEC), fb)
+  });
+})();
+
+/* ---------------- DFD challenge 2: Pizza Ordering System ---------------- */
+(function(){
+  const host = $('#dfdCanvas2'); if(!host) return;
+  const SPEC = {
+    nodes: [
+      {key:'c',  type:'entity',  name:'the Customer',              labelKeywords:['customer']},
+      {key:'p1', type:'process', name:'the Take Order process',    labelKeywords:['take order','order']},
+      {key:'p2', type:'process', name:'the Prepare Pizza process', labelKeywords:['prepare']},
+      {key:'d1', type:'store',   name:'the Orders store',          labelKeywords:['order']}
+    ],
+    edges: [
+      {from:'c',  to:'p1', name:'Customer → Take Order (the order details)',       labelKeywords:['order']},
+      {from:'p1', to:'d1', name:'Take Order → Orders (saving the order)',          labelKeywords:['save','record','order']},
+      {from:'d1', to:'p2', name:'Orders → Prepare Pizza (the order details)',      labelKeywords:['order']},
+      {from:'p2', to:'c',  name:'Prepare Pizza → Customer (the finished pizza)',   labelKeywords:['pizza','ready','deliver']}
+    ]
+  };
+  createDiagramCanvas(host, {
+    palette: [{type:'entity', label:'External Entity'}, {type:'process', label:'Process'}, {type:'store', label:'Data Store'}],
+    onCheck: (nodes, edges, fb) => renderDFDResult(validateDFD(nodes, edges, SPEC), fb)
+  });
+})();
+
+/* ---------------- ERD challenge: School Enrolment ---------------- */
+(function(){
+  const host = $('#erdCanvas1'); if(!host) return;
+  const SPEC = {
+    nodes: [
+      {key:'student', type:'entity', name:'Student', labelKeywords:['student']},
+      {key:'course',  type:'entity', name:'Course',  labelKeywords:['course']},
+      {key:'teacher', type:'entity', name:'Teacher', labelKeywords:['teacher']}
+    ],
+    edges: [
+      {aKey:'teacher', bKey:'course', name:'Teacher — Course ("teaches", 1:M)', labelKeywords:['teach'], cardA:'1', cardB:'M'},
+      {aKey:'student', bKey:'course', name:'Student — Course ("enrols in", M:M)', labelKeywords:['enrol','enroll'], cardA:'M', cardB:'M'}
+    ]
+  };
+  createDiagramCanvas(host, {
+    palette: [{type:'entity', label:'Entity'}],
+    cardinality: true,
+    onCheck: (nodes, edges, fb) => renderERDResult(validateERD(nodes, edges, SPEC), fb)
+  });
+})();
+</script>
+</body>
+</html>
